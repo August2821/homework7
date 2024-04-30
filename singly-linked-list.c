@@ -179,7 +179,6 @@ int insertNode(headNode* h, int key) {
         if(p->key<=key){
 			//p->key가 key와 같고 p가 첫 번째 노드라면
 			if(p->key==key && i==0){
-				printf("\n2\n");
 				//첫 번째 노드 바로 뒤에 노드 삽입
                 node->link=p->link;
 				p->link=node;
@@ -188,7 +187,6 @@ int insertNode(headNode* h, int key) {
 			//p가 이동하다가 마지막 node가 되면
 			//p->link가 NULL이고 p->key가 key보다 작거나 같으면
             if(p->link==NULL){
-				printf("\n1\n");
 				//마지막 노드 뒤에 노드 삽입
                 p->link=node;
                 node->link=NULL;
