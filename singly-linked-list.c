@@ -41,7 +41,7 @@ int main()
 {
 	char command;
 	int key;
-	headNode* headnode=NULL;
+	headNode* headnode=NULL; //headnode는 null로 초기화
 
 	do{
 		printf("\n[----- [김민경] [2023041054] -----]\n");
@@ -103,6 +103,7 @@ int main()
 		}
 
 	}while(command != 'q' && command != 'Q');
+	//q나 Q가 입력되면 종료
 
 	return 0;
 }
@@ -131,6 +132,7 @@ int freeList(headNode* h){
 		p = p->link;
 		free(prev);
 	}
+	//node들 동적할당 해제 후 headnode 동적할당 해제
 	free(h);
 	return 0;
 }
@@ -206,6 +208,7 @@ int insertNode(headNode* h, int key) {
                 return 0;
             }
 			//p->key가 key보다 크고 첫 번째 노드가 아니면 count는 입력받은 key보다 큰값이 나오는 노드 바로 앞
+			//입력받은 key보다 큰값이 나오는 노드 바로 앞을 찾았기 때문에 for문은 멈춰야 됨
             count=i-1;
             break;
         }
@@ -225,6 +228,7 @@ int insertNode(headNode* h, int key) {
 			return 0;
 		}else{
 			//if 조건에 해당하지 않으면 p는 다음 노드로
+			//이거 없으면 제대로 동작하지 않음, 다음 노드로 이동을 안 하기 때문
 			p = p->link;
 		}
 	}
@@ -276,19 +280,30 @@ int deleteFirst(headNode* h) {
 	listNode* p=h->first;
 	listNode* prev = NULL;
 
+	//h->first가 null이면 삭제할 값이 없으므로 에러 출력
 	if(h->first==NULL) {
 		printf("\n====에러====\n");
 		return 0;
 	}
 
+	//첫 번째 노드 link가 null이면
 	if(p->link==NULL) {
+		//h->first는 null이어야 함
+		//노드가 없기 때문
 		h->first=NULL;
+		//p 동적할당 해제
+		free(p);
 		return 0;
 	}
 
+	//위에 조건에 모두 해당하지 않으면
+	//prev는 첫 번째 노드
 	prev = p;
+	//p는 다음 노드로 이동
 	p=p->link;
+	//동적할당 해제
 	free(prev);
+	//첫 번째 노드를 해제 했기 때문에 h->first가 그 다음 노드를 가리키도록
 	h->first=p;
 
 	return 0;
@@ -303,23 +318,34 @@ int deleteNode(headNode* h, int key) {
 	listNode* p = h->first;
 	int i,count=0;
 
+	//삭제할 노드가 없으면 에러
 	if(h->first==NULL) {
 		printf("\n====에러====\n");
 		return 0;
 	}
 
+	//첫 번째 노드가 null이면
 	if(prev->link==NULL) {
+		//h->first를 null로, 노드가 없기 때문
 		h->first=NULL;
+
+		//첫 번째 노드 동적할당 해제
+		free(prev);
 		return 0;
 	}
 
+	//key 값을 가지고 있는 노드 바로 앞 노드를 찾아야 함
 	//삭제할 노드 찾기
 	for(i=0;prev!=NULL;i++){
 		if(prev->key==key){
 			//삭제할 노드 바로 앞 노드를 찾기 위해 i=삭제할 노드, i-1=삭제할 노드 바로 앞 노드
+			//삭제할 노드 바로 앞 노드와 뒤 노드를 이어야 되기 때문에
+			//삭제할 노드 바로 앞 노드를 찾는 것
 			count=i-1;
 			break;
+			//찾으면 멈춰야 함
 		}
+		//찾을 때 까지 계속 다음 노드로 이동
 		prev=prev->link;
 	}
 
@@ -327,14 +353,19 @@ int deleteNode(headNode* h, int key) {
 	//p=삭제할 노드 바로 앞 노드
 	for(i=0;p!=NULL;i++){
 		if(count==i){
+			//삭제할 노드 바로 앞 노드 link에
+			//삭제할 노드 바로 뒤 노드 주소 넣음, 다음 노드를 가리킬 수 있도록
+			//null이어도 null값이 삭제할 노드 바로 앞 노드 link에 들어감
 			p->link=prev->link;
+
+			//그런 다음 삭제할 노드 동적할당 해제
 			free(prev);
 			return 0;	
 		}
+		//다음 노드로
 		p=p->link;
 	}
 	return 0;
-
 }
 
 /**
@@ -344,16 +375,21 @@ int deleteLast(headNode* h) {
 	listNode* prev = h->first;
 	int i,count=0;
 	
-	//list가 비어있다면 에러
+	//삭제할 노드가 없다면 에러
 	if(h->first==NULL) {
 		printf("\n====에러====\n");
 		return 0;
 	}
 
-	//첫 번째 노드의 link가 null이면 더 이상 노드가 없다는 것
-	//케이스를 빼서 따로 처리
+	//첫 번째 노드의 link가 null이면 노드가 하나 라는 것
 	if(prev->link==NULL) {
+		//h->first는 null이어야 함
+		//노드가 없기 때문
 		h->first=NULL;
+
+		//삭제할 노드 동적할당 해제
+		//free 안 하면 더 이상 prev에 접근할 수 없음
+		free(prev);
 		return 0;
 	}
 
@@ -392,12 +428,16 @@ int invertList(headNode* h) {
 	b=NULL;
 	c=NULL;
 
+	//a가 null이 될 때까지 반복
 	while (a!=NULL){
+		//a는 계속 다음 노드로 넘어가게 됨
+		//그래서 a가 null이면 모든 노드를 재배치(역순) 되었단 의미
 		c=b;
 		b=a;
 		a=a->link;
 		b->link=c;
 	}
+	//h->first에 마지막 노드인 b를 연결하면 역순 완료
 	h->first=b;
 	
 	return 0;
@@ -410,19 +450,22 @@ void printList(headNode* h) {
 
 	printf("\n---PRINT\n");
 
+	//h가 null이면 노드가 없음
 	if(h == NULL) {
 		printf("Nothing to print....\n");
 		return;
 	}
 
 	p = h->first;
-
+	//모든 노드 출력
 	while(p != NULL) {
 		printf("[ [%d]=%d ] ", i, p->key);
+		
+		//다음 노드로 이동
 		p = p->link;
 		i++;
 	}
-
+	//현재 노드들 개수 i 출력
 	printf("  items = %d\n", i);
 }
 
